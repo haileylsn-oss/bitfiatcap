@@ -24,7 +24,7 @@ const messages: Message[] = [
     preview: "Your BitFiat account requires Tier-2 Unlock to enable withdrawals and outbound transactions.",
     full: `🚫 Withdrawal Access Restricted – Tier-2 Clearance Required.
 
-To proceed with withdrawals or external transfers, your account must meet Tier-2 compliance. A reserve unlock transaction of $107,544.00 USD is required to complete this process.`,
+To proceed with withdrawals or external transfers, your account must meet Tier-2 compliance. A reserve unlock transaction is required to complete this process. contact support for more details`,
     date: "July 5, 2025",
     unread: true,
   },
