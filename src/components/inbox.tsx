@@ -1,5 +1,5 @@
 import  { useState } from "react";
-import { MailWarning, ShieldAlert, CreditCard, Info, CheckCircle } from "lucide-react";
+import { MailWarning, ShieldAlert} from "lucide-react";
 import BottomNav from "../pages/stickyNav";
 import BottomNav2 from "../pages/bottomnav2";
 import SupportBot from "./support";
@@ -38,36 +38,36 @@ To avoid any disruption in your mining or banking features, please log in and up
     date: "July 3, 2025",
     unread: true,
   },
-  {
-    id: 3,
-    icon: <CreditCard className="text-green-600" size={24} />,
-    subject: "Virtual Debit Card Approved",
-    preview: "Your BitFiat virtual debit card has been approved and will be issued shortly.",
-    full: `Great news! Your BitFiat Capital virtual debit card has been successfully approved. 
-The card will be linked to your wallet and issued within 2–3 business days.`,
-    date: "July 1, 2025",
-    unread: true,
-  },
-  {
-    id: 4,
-    icon: <Info className="text-blue-500" size={24} />,
-    subject: "New Update: Mining & Wallet Insights",
-    preview: "Monitor earnings and spending with the new performance dashboard.",
-    full: `A new analytics feature is now available on your BitFiat dashboard. 
-Track your mining performance, wallet activity, and spending insights in real-time.`,
-    date: "June 29, 2025",
-    unread: false,
-  },
-  {
-    id: 5,
-    icon: <CheckCircle className="text-green-500" size={24} />,
-    subject: "KYC Verified — Full Access Granted",
-    preview: "Your identity verification is now complete. Enjoy unrestricted access to all features.",
-    full: `Congratulations! Your KYC verification has been successfully completed. 
-You now have full access to mining rewards, banking services, and referral payouts within BitFiat Capital.`,
-    date: "June 25, 2025",
-    unread: false,
-  },
+//   {
+//     id: 3,
+//     icon: <CreditCard className="text-green-600" size={24} />,
+//     subject: "Virtual Debit Card Approved",
+//     preview: "Your BitFiat virtual debit card has been approved and will be issued shortly.",
+//     full: `Great news! Your BitFiat Capital virtual debit card has been successfully approved. 
+// The card will be linked to your wallet and issued within 2–3 business days.`,
+//     date: "July 1, 2025",
+//     unread: true,
+//   },
+//   {
+//     id: 4,
+//     icon: <Info className="text-blue-500" size={24} />,
+//     subject: "New Update: Mining & Wallet Insights",
+//     preview: "Monitor earnings and spending with the new performance dashboard.",
+//     full: `A new analytics feature is now available on your BitFiat dashboard. 
+// Track your mining performance, wallet activity, and spending insights in real-time.`,
+//     date: "June 29, 2025",
+//     unread: false,
+//   },
+//   {
+//     id: 5,
+//     icon: <CheckCircle className="text-green-500" size={24} />,
+//     subject: "KYC Verified — Full Access Granted",
+//     preview: "Your identity verification is now complete. Enjoy unrestricted access to all features.",
+//     full: `Congratulations! Your KYC verification has been successfully completed. 
+// You now have full access to mining rewards, banking services, and referral payouts within BitFiat Capital.`,
+//     date: "June 25, 2025",
+//     unread: false,
+//   },
 ];
 
 
@@ -97,7 +97,7 @@ const InboxPage = () => {
                 <p className="text-gray-600 text-sm mt-1">{msg.preview}</p>
               </div>
               <div className="text-sm text-gray-500 text-right">
-                <p>{msg.date}</p>
+                {/* <p>{msg.date}</p> */}
                 {msg.unread && (
                   <span className="text-xs text-white bg-red-600 px-2 py-0.5 rounded-full ml-1">
                     Unread
@@ -122,7 +122,7 @@ const InboxPage = () => {
             <div className="mb-3">{selectedMessage.icon}</div>
             <h2 className="text-xl font-bold text-red-700 mb-2">{selectedMessage.subject}</h2>
             <p className="text-gray-700 text-sm whitespace-pre-line">{selectedMessage.full}</p>
-            <p className="text-xs text-gray-400 mt-4">{selectedMessage.date}</p>
+            {/* <p className="text-xs text-gray-400 mt-4">{selectedMessage.date}</p> */}
           </div>
         </div>
       )}
