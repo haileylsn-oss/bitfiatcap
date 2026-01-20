@@ -2,8 +2,8 @@
 
 declare global {
   interface Window {
-    smartsupp: any;
-    _smartsupp: any;
+    Tawk_API?: any;
+    Tawk_LoadStart?: Date;
   }
 }
 
@@ -15,16 +15,18 @@ const SupportBot = () => {
     // Prevent SSR / build errors
     if (typeof window === "undefined") return;
 
-    // Prevent loading Smartsupp twice
-    if (window.smartsupp) return;
+    // Prevent loading Tawk twice
+    if (window.Tawk_API) return;
 
-    window._smartsupp = window._smartsupp || {};
-    window._smartsupp.key = "44db08d5f358696fd63fd8a6861a244113ca65d0";
+    window.Tawk_API = window.Tawk_API || {};
+    window.Tawk_LoadStart = new Date();
 
     const script = document.createElement("script");
-    script.type = "text/javascript";
     script.async = true;
-    script.src = "https://www.smartsuppchat.com/loader.js";
+    script.src =
+      "https://embed.tawk.to/696f737f1090e9198185fb73/1jfdlmaif";
+    script.charset = "UTF-8";
+    script.setAttribute("crossorigin", "*");
 
     document.body.appendChild(script);
   }, []);
