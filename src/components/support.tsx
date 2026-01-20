@@ -13,7 +13,7 @@ const SupportBot = () => {
     if (window.smartsupp) return;
 
     window._smartsupp = window._smartsupp || {};
-    window._smartsupp.key = "8d05adc4a0b26322e115c3c5b11449d3ab26e675";
+    window._smartsupp.key = "44db08d5f358696fd63fd8a6861a244113ca65d0";
 
     const script = document.createElement("script");
     script.async = true;
