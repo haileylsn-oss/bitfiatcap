@@ -2,8 +2,7 @@
 
 declare global {
   interface Window {
-    Tawk_API?: any;
-    Tawk_LoadStart?: Date;
+    tidioChatApi?: any;
   }
 }
 
@@ -12,21 +11,16 @@ import { FaEnvelope } from "react-icons/fa";
 
 const SupportBot = () => {
   useEffect(() => {
-    // Prevent SSR / build errors
     if (typeof window === "undefined") return;
 
-    // Prevent loading Tawk twice
-    if (window.Tawk_API) return;
-
-    window.Tawk_API = window.Tawk_API || {};
-    window.Tawk_LoadStart = new Date();
+    // Prevent loading Tidio twice
+    if (document.getElementById("tidio-script")) return;
 
     const script = document.createElement("script");
+    script.id = "tidio-script";
     script.async = true;
-    script.src =
-      "https://embed.tawk.to/696f737f1090e9198185fb73/1jfdlmaif";
+    script.src = "https://code.tidio.co/84evvjmmptqvocz3z64xjbo32mbosdki.js";
     script.charset = "UTF-8";
-    script.setAttribute("crossorigin", "*");
 
     document.body.appendChild(script);
   }, []);
