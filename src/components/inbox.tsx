@@ -4,9 +4,7 @@ import {
   Bell,
   ShieldCheck,
   CreditCard,
-  ArrowDownToLine,
-  ArrowUpFromLine,
-  CheckCircle,
+
   Info,
   X,
 } from "lucide-react";
