@@ -3,34 +3,30 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   FaArrowLeft,
-  FaPaperPlane,
+  FaFileInvoiceDollar,
   FaCheckCircle,
 } from "react-icons/fa";
 import BottomNav2 from "./bottomnav2";
 import { getUsers, updateUser } from "../backend/api";
 import log from "../assets/logo.png";
 
-interface SendMoneyForm {
-  recipientName: string;
-  accountNumber: string;
-  bank: string;
+interface BillsForm {
+  billType: string;
+  customerNumber: string;
   amount: string;
-  description: string;
 }
 
-const SendMoney: React.FC = () => {
+const Bills: React.FC = () => {
   const navigate = useNavigate();
 
   const [user, setUser] = useState<any>(null);
   const [userName, setUserName] = useState("");
   const [userImage, setUserImage] = useState("");
 
-  const [form, setForm] = useState<SendMoneyForm>({
-    recipientName: "",
-    accountNumber: "",
-    bank: "",
+  const [form, setForm] = useState<BillsForm>({
+    billType: "Gas",
+    customerNumber: "",
     amount: "",
-    description: "",
   });
 
   const [submitting, setSubmitting] = useState(false);
@@ -68,7 +64,7 @@ const SendMoney: React.FC = () => {
 
   const handleInputChange = (
     e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+      HTMLInputElement | HTMLSelectElement
     >
   ) => {
     const { name, value } = e.target;
@@ -98,37 +94,36 @@ const SendMoney: React.FC = () => {
     }));
   };
 
-  const handleSendMoney = async (
+  const handleBillPayment = async (
     e: React.FormEvent
   ) => {
     e.preventDefault();
 
-    const transferAmount = Number(form.amount);
+    const billAmount = Number(form.amount);
 
-    if (!form.recipientName.trim()) {
-      alert("Please enter the recipient name.");
+    if (!form.billType) {
+      alert("Please select a bill type.");
       return;
     }
 
-    if (!form.accountNumber.trim()) {
-      alert("Please enter the recipient account number.");
+    if (!form.customerNumber.trim()) {
+      alert(
+        form.billType === "Gas"
+          ? "Please enter the meter number."
+          : "Please enter the customer number."
+      );
       return;
     }
 
-    if (!form.bank.trim()) {
-      alert("Please enter the recipient bank.");
-      return;
-    }
-
-    if (!form.amount || transferAmount <= 0) {
-      alert("Please enter a valid transfer amount.");
+    if (!form.amount || billAmount <= 0) {
+      alert("Please enter a valid payment amount.");
       return;
     }
 
     const availableBalance = Number(user?.amount ?? 0);
 
-    if (transferAmount > availableBalance) {
-      alert("The transfer amount exceeds your available balance.");
+    if (billAmount > availableBalance) {
+      alert("The payment amount exceeds your available balance.");
       return;
     }
 
@@ -145,10 +140,8 @@ const SendMoney: React.FC = () => {
 
       const currentUser = JSON.parse(storedUser);
 
-      // GET LATEST USERS
       const users = await getUsers();
 
-      // FIND CURRENT USER
       const index = users.findIndex(
         (u: any) => u.email === currentUser.email
       );
@@ -158,16 +151,13 @@ const SendMoney: React.FC = () => {
         return;
       }
 
-      // CREATE PENDING HISTORY
       const newHistoryEntry = {
         date: new Date().toISOString().split("T")[0],
-        amount: transferAmount,
-        description:
-          form.description.trim() ||
-          `Money Transfer to ${form.recipientName}`,
+        amount: billAmount,
+        description: `${form.billType} Bill Payment`,
         type: "pending",
         formattedAmount:
-          formatAmountForHistory(transferAmount),
+          formatAmountForHistory(billAmount),
       };
 
       const existingHistory = Array.isArray(
@@ -185,32 +175,28 @@ const SendMoney: React.FC = () => {
         ],
       };
 
-      // UPDATE BACKEND
       await updateUser(index, updatedUser);
 
-      // UPDATE LOCAL STORAGE
       localStorage.setItem(
         "loggedInUser",
         JSON.stringify(updatedUser)
       );
 
       setUser(updatedUser);
-      setSubmittedAmount(transferAmount);
+      setSubmittedAmount(billAmount);
 
       setForm({
-        recipientName: "",
-        accountNumber: "",
-        bank: "",
+        billType: "Gas",
+        customerNumber: "",
         amount: "",
-        description: "",
       });
 
       setSubmitted(true);
     } catch (error) {
-      console.error("Failed to send money:", error);
+      console.error("Failed to submit bill payment:", error);
 
       alert(
-        "Unable to submit your transfer. Please try again."
+        "Unable to submit your bill payment. Please try again."
       );
     } finally {
       setSubmitting(false);
@@ -254,20 +240,20 @@ const SendMoney: React.FC = () => {
               {userName}
             </span>
           </div>
+
         </div>
       </div>
 
-      {/* MAIN */}
       <main className="min-h-screen bg-gray-50 pb-32">
         <div className="max-w-6xl mx-auto px-4 py-6">
 
           <div className="mb-6">
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-              Send Money
+              Bills / Gas
             </h1>
 
             <p className="text-sm text-gray-500 mt-1">
-              Send funds to another bank account.
+              Pay your utility and service bills.
             </p>
           </div>
 
@@ -286,7 +272,7 @@ const SendMoney: React.FC = () => {
               </div>
 
               <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center">
-                <FaPaperPlane />
+                <FaFileInvoiceDollar />
               </div>
 
             </div>
@@ -299,67 +285,82 @@ const SendMoney: React.FC = () => {
 
               <div className="mb-6">
                 <h2 className="text-lg font-bold text-gray-900">
-                  Transfer Details
+                  Bill Payment
                 </h2>
 
                 <p className="text-sm text-gray-500 mt-1">
-                  Enter the recipient's banking information.
+                  Enter your bill or meter information.
                 </p>
               </div>
 
-              <form onSubmit={handleSendMoney}>
+              <form onSubmit={handleBillPayment}>
 
-                {/* RECIPIENT */}
+                {/* BILL TYPE */}
                 <div className="mb-5">
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Recipient Name
+                    Bill Type
                   </label>
 
-                  <input
-                    type="text"
-                    name="recipientName"
-                    value={form.recipientName}
+                  <select
+                    name="billType"
+                    value={form.billType}
                     onChange={handleInputChange}
-                    placeholder="Enter recipient name"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600"
-                  />
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 bg-white"
+                  >
+                    <option value="Gas">
+                      Gas
+                    </option>
+
+                    <option value="Electricity">
+                      Electricity
+                    </option>
+
+                    <option value="Water">
+                      Water
+                    </option>
+
+                    <option value="Internet">
+                      Internet
+                    </option>
+
+                    <option value="Cable TV">
+                      Cable TV
+                    </option>
+
+                    <option value="Airtime">
+                      Airtime
+                    </option>
+
+                    <option value="Data">
+                      Data
+                    </option>
+                  </select>
                 </div>
 
-                {/* BANK */}
+                {/* CUSTOMER / METER */}
                 <div className="mb-5">
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Bank Name
+                    {form.billType === "Gas"
+                      ? "Meter Number"
+                      : "Customer Number"}
                   </label>
 
                   <input
                     type="text"
-                    name="bank"
-                    value={form.bank}
+                    name="customerNumber"
+                    value={form.customerNumber}
                     onChange={handleInputChange}
-                    placeholder="Enter bank name"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600"
-                  />
-                </div>
-
-                {/* ACCOUNT */}
-                <div className="mb-5">
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Account Number
-                  </label>
-
-                  <input
-                    type="text"
-                    name="accountNumber"
-                    value={form.accountNumber}
-                    onChange={handleInputChange}
-                    placeholder="Enter account number"
-                    inputMode="numeric"
+                    placeholder={
+                      form.billType === "Gas"
+                        ? "Enter meter number"
+                        : "Enter customer number"
+                    }
                     className="w-full px-4 py-3 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600"
                   />
                 </div>
 
                 {/* AMOUNT */}
-                <div className="mb-5">
+                <div className="mb-6">
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Amount
                   </label>
@@ -386,73 +387,47 @@ const SendMoney: React.FC = () => {
                   </p>
                 </div>
 
-                {/* DESCRIPTION */}
-                <div className="mb-6">
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Description
-                    <span className="font-normal text-gray-400">
-                      {" "}
-                      (Optional)
-                    </span>
-                  </label>
-
-                  <textarea
-                    name="description"
-                    value={form.description}
-                    onChange={handleInputChange}
-                    placeholder="Add a description"
-                    rows={3}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 resize-none"
-                  />
-                </div>
-
                 <button
                   type="submit"
                   disabled={submitting}
                   className="w-full bg-blue-900 text-white py-3.5 rounded-xl font-semibold hover:bg-blue-800 transition disabled:opacity-50"
                 >
                   {submitting
-                    ? "Processing Transfer..."
-                    : "Send Money"}
+                    ? "Processing Payment..."
+                    : "Pay Bill"}
                 </button>
+
               </form>
             </div>
 
             {/* SUMMARY */}
             <div className="bg-gray-100 rounded-2xl p-5 h-fit">
+
               <h3 className="font-bold text-gray-900 mb-4">
-                Transfer Summary
+                Payment Summary
               </h3>
 
               <div className="space-y-3 text-sm">
 
                 <div className="flex justify-between gap-4">
                   <span className="text-gray-500">
-                    Recipient
+                    Bill Type
                   </span>
 
-                  <span className="font-medium text-gray-800 text-right">
-                    {form.recipientName || "—"}
-                  </span>
-                </div>
-
-                <div className="flex justify-between gap-4">
-                  <span className="text-gray-500">
-                    Bank
-                  </span>
-
-                  <span className="font-medium text-gray-800 text-right">
-                    {form.bank || "—"}
+                  <span className="font-medium text-gray-800">
+                    {form.billType}
                   </span>
                 </div>
 
                 <div className="flex justify-between gap-4">
                   <span className="text-gray-500">
-                    Account
+                    {form.billType === "Gas"
+                      ? "Meter"
+                      : "Customer"}
                   </span>
 
                   <span className="font-medium text-gray-800 text-right">
-                    {form.accountNumber || "—"}
+                    {form.customerNumber || "—"}
                   </span>
                 </div>
 
@@ -472,11 +447,12 @@ const SendMoney: React.FC = () => {
 
               </div>
             </div>
+
           </div>
         </div>
       </main>
 
-      {/* PROCESSING MODAL */}
+      {/* PROCESSING */}
       {submitting && (
         <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center px-4">
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6 text-center">
@@ -484,11 +460,11 @@ const SendMoney: React.FC = () => {
             <div className="w-14 h-14 border-4 border-blue-100 border-t-blue-800 rounded-full animate-spin mx-auto mb-5" />
 
             <h3 className="text-lg font-bold text-gray-900">
-              Processing Transfer
+              Processing Payment
             </h3>
 
             <p className="text-sm text-gray-500 mt-2">
-              Please wait while your transfer is being submitted.
+              Please wait while your payment is being submitted.
             </p>
 
           </div>
@@ -507,15 +483,19 @@ const SendMoney: React.FC = () => {
               </div>
 
               <h2 className="text-xl font-bold text-gray-900">
-                Transfer Submitted
+                Payment Submitted
               </h2>
 
               <p className="text-gray-500 text-sm mt-2">
-                Your transfer of{" "}
+                Your{" "}
+                <strong className="text-gray-800">
+                  {form.billType}
+                </strong>{" "}
+                payment of{" "}
                 <strong className="text-gray-800">
                   {formatAmountForHistory(submittedAmount)}
                 </strong>{" "}
-                has been submitted successfully.
+                has been submitted.
               </p>
 
               <div className="w-full bg-yellow-50 border border-yellow-200 rounded-xl p-4 mt-5 text-left">
@@ -524,8 +504,8 @@ const SendMoney: React.FC = () => {
                 </p>
 
                 <p className="text-xs text-yellow-700 mt-1">
-                  The transaction has been added to your transaction history
-                  as pending.
+                  The bill payment has been added to your transaction
+                  history as pending.
                 </p>
               </div>
 
@@ -542,7 +522,7 @@ const SendMoney: React.FC = () => {
                 onClick={() => setSubmitted(false)}
                 className="w-full mt-3 bg-gray-100 text-gray-700 py-3 rounded-xl font-semibold hover:bg-gray-200 transition"
               >
-                Make Another Transfer
+                Make Another Payment
               </button>
 
             </div>
@@ -555,4 +535,4 @@ const SendMoney: React.FC = () => {
   );
 };
 
-export default SendMoney;
+export default Bills;

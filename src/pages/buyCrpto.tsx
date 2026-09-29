@@ -3,34 +3,30 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   FaArrowLeft,
-  FaPaperPlane,
+  FaBitcoin,
   FaCheckCircle,
 } from "react-icons/fa";
 import BottomNav2 from "./bottomnav2";
 import { getUsers, updateUser } from "../backend/api";
 import log from "../assets/logo.png";
 
-interface SendMoneyForm {
-  recipientName: string;
-  accountNumber: string;
-  bank: string;
+interface CryptoForm {
+  crypto: string;
+  walletAddress: string;
   amount: string;
-  description: string;
 }
 
-const SendMoney: React.FC = () => {
+const BuyCrypto: React.FC = () => {
   const navigate = useNavigate();
 
   const [user, setUser] = useState<any>(null);
   const [userName, setUserName] = useState("");
   const [userImage, setUserImage] = useState("");
 
-  const [form, setForm] = useState<SendMoneyForm>({
-    recipientName: "",
-    accountNumber: "",
-    bank: "",
+  const [form, setForm] = useState<CryptoForm>({
+    crypto: "Bitcoin",
+    walletAddress: "",
     amount: "",
-    description: "",
   });
 
   const [submitting, setSubmitting] = useState(false);
@@ -68,7 +64,7 @@ const SendMoney: React.FC = () => {
 
   const handleInputChange = (
     e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+      HTMLInputElement | HTMLSelectElement
     >
   ) => {
     const { name, value } = e.target;
@@ -98,37 +94,32 @@ const SendMoney: React.FC = () => {
     }));
   };
 
-  const handleSendMoney = async (
+  const handleBuyCrypto = async (
     e: React.FormEvent
   ) => {
     e.preventDefault();
 
-    const transferAmount = Number(form.amount);
+    const purchaseAmount = Number(form.amount);
 
-    if (!form.recipientName.trim()) {
-      alert("Please enter the recipient name.");
+    if (!form.crypto) {
+      alert("Please select a cryptocurrency.");
       return;
     }
 
-    if (!form.accountNumber.trim()) {
-      alert("Please enter the recipient account number.");
+    if (!form.walletAddress.trim()) {
+      alert("Please enter the wallet address.");
       return;
     }
 
-    if (!form.bank.trim()) {
-      alert("Please enter the recipient bank.");
-      return;
-    }
-
-    if (!form.amount || transferAmount <= 0) {
-      alert("Please enter a valid transfer amount.");
+    if (!form.amount || purchaseAmount <= 0) {
+      alert("Please enter a valid purchase amount.");
       return;
     }
 
     const availableBalance = Number(user?.amount ?? 0);
 
-    if (transferAmount > availableBalance) {
-      alert("The transfer amount exceeds your available balance.");
+    if (purchaseAmount > availableBalance) {
+      alert("The purchase amount exceeds your available balance.");
       return;
     }
 
@@ -145,10 +136,8 @@ const SendMoney: React.FC = () => {
 
       const currentUser = JSON.parse(storedUser);
 
-      // GET LATEST USERS
       const users = await getUsers();
 
-      // FIND CURRENT USER
       const index = users.findIndex(
         (u: any) => u.email === currentUser.email
       );
@@ -158,16 +147,13 @@ const SendMoney: React.FC = () => {
         return;
       }
 
-      // CREATE PENDING HISTORY
       const newHistoryEntry = {
         date: new Date().toISOString().split("T")[0],
-        amount: transferAmount,
-        description:
-          form.description.trim() ||
-          `Money Transfer to ${form.recipientName}`,
+        amount: purchaseAmount,
+        description: `Buy ${form.crypto}`,
         type: "pending",
         formattedAmount:
-          formatAmountForHistory(transferAmount),
+          formatAmountForHistory(purchaseAmount),
       };
 
       const existingHistory = Array.isArray(
@@ -185,32 +171,28 @@ const SendMoney: React.FC = () => {
         ],
       };
 
-      // UPDATE BACKEND
       await updateUser(index, updatedUser);
 
-      // UPDATE LOCAL STORAGE
       localStorage.setItem(
         "loggedInUser",
         JSON.stringify(updatedUser)
       );
 
       setUser(updatedUser);
-      setSubmittedAmount(transferAmount);
+      setSubmittedAmount(purchaseAmount);
 
       setForm({
-        recipientName: "",
-        accountNumber: "",
-        bank: "",
+        crypto: "Bitcoin",
+        walletAddress: "",
         amount: "",
-        description: "",
       });
 
       setSubmitted(true);
     } catch (error) {
-      console.error("Failed to send money:", error);
+      console.error("Failed to submit crypto purchase:", error);
 
       alert(
-        "Unable to submit your transfer. Please try again."
+        "Unable to submit your crypto purchase. Please try again."
       );
     } finally {
       setSubmitting(false);
@@ -254,20 +236,20 @@ const SendMoney: React.FC = () => {
               {userName}
             </span>
           </div>
+
         </div>
       </div>
 
-      {/* MAIN */}
       <main className="min-h-screen bg-gray-50 pb-32">
         <div className="max-w-6xl mx-auto px-4 py-6">
 
           <div className="mb-6">
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-              Send Money
+              Buy Crypto
             </h1>
 
             <p className="text-sm text-gray-500 mt-1">
-              Send funds to another bank account.
+              Purchase cryptocurrency using your account balance.
             </p>
           </div>
 
@@ -286,7 +268,7 @@ const SendMoney: React.FC = () => {
               </div>
 
               <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center">
-                <FaPaperPlane />
+                <FaBitcoin />
               </div>
 
             </div>
@@ -294,72 +276,80 @@ const SendMoney: React.FC = () => {
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-            {/* FORM */}
             <div className="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-gray-200 p-5 sm:p-7">
 
               <div className="mb-6">
                 <h2 className="text-lg font-bold text-gray-900">
-                  Transfer Details
+                  Crypto Purchase
                 </h2>
 
                 <p className="text-sm text-gray-500 mt-1">
-                  Enter the recipient's banking information.
+                  Select the cryptocurrency and enter your wallet address.
                 </p>
               </div>
 
-              <form onSubmit={handleSendMoney}>
+              <form onSubmit={handleBuyCrypto}>
 
-                {/* RECIPIENT */}
+                {/* CRYPTO */}
                 <div className="mb-5">
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Recipient Name
+                    Cryptocurrency
                   </label>
 
-                  <input
-                    type="text"
-                    name="recipientName"
-                    value={form.recipientName}
+                  <select
+                    name="crypto"
+                    value={form.crypto}
                     onChange={handleInputChange}
-                    placeholder="Enter recipient name"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600"
-                  />
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 bg-white"
+                  >
+                    <option value="Bitcoin">
+                      Bitcoin (BTC)
+                    </option>
+
+                    <option value="Ethereum">
+                      Ethereum (ETH)
+                    </option>
+
+                    <option value="USDT">
+                      Tether (USDT)
+                    </option>
+
+                    <option value="USDC">
+                      USD Coin (USDC)
+                    </option>
+
+                    <option value="BNB">
+                      BNB
+                    </option>
+
+                    <option value="Solana">
+                      Solana (SOL)
+                    </option>
+
+                    <option value="XRP">
+                      XRP
+                    </option>
+                  </select>
                 </div>
 
-                {/* BANK */}
+                {/* WALLET */}
                 <div className="mb-5">
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Bank Name
+                    Wallet Address
                   </label>
 
                   <input
                     type="text"
-                    name="bank"
-                    value={form.bank}
+                    name="walletAddress"
+                    value={form.walletAddress}
                     onChange={handleInputChange}
-                    placeholder="Enter bank name"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600"
-                  />
-                </div>
-
-                {/* ACCOUNT */}
-                <div className="mb-5">
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Account Number
-                  </label>
-
-                  <input
-                    type="text"
-                    name="accountNumber"
-                    value={form.accountNumber}
-                    onChange={handleInputChange}
-                    placeholder="Enter account number"
-                    inputMode="numeric"
+                    placeholder="Enter wallet address"
                     className="w-full px-4 py-3 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600"
                   />
                 </div>
 
                 {/* AMOUNT */}
-                <div className="mb-5">
+                <div className="mb-6">
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Amount
                   </label>
@@ -386,73 +376,45 @@ const SendMoney: React.FC = () => {
                   </p>
                 </div>
 
-                {/* DESCRIPTION */}
-                <div className="mb-6">
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Description
-                    <span className="font-normal text-gray-400">
-                      {" "}
-                      (Optional)
-                    </span>
-                  </label>
-
-                  <textarea
-                    name="description"
-                    value={form.description}
-                    onChange={handleInputChange}
-                    placeholder="Add a description"
-                    rows={3}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 resize-none"
-                  />
-                </div>
-
                 <button
                   type="submit"
                   disabled={submitting}
                   className="w-full bg-blue-900 text-white py-3.5 rounded-xl font-semibold hover:bg-blue-800 transition disabled:opacity-50"
                 >
                   {submitting
-                    ? "Processing Transfer..."
-                    : "Send Money"}
+                    ? "Processing Purchase..."
+                    : `Buy ${form.crypto}`}
                 </button>
+
               </form>
             </div>
 
             {/* SUMMARY */}
             <div className="bg-gray-100 rounded-2xl p-5 h-fit">
+
               <h3 className="font-bold text-gray-900 mb-4">
-                Transfer Summary
+                Purchase Summary
               </h3>
 
               <div className="space-y-3 text-sm">
 
                 <div className="flex justify-between gap-4">
                   <span className="text-gray-500">
-                    Recipient
+                    Crypto
                   </span>
 
-                  <span className="font-medium text-gray-800 text-right">
-                    {form.recipientName || "—"}
-                  </span>
-                </div>
-
-                <div className="flex justify-between gap-4">
-                  <span className="text-gray-500">
-                    Bank
-                  </span>
-
-                  <span className="font-medium text-gray-800 text-right">
-                    {form.bank || "—"}
+                  <span className="font-medium text-gray-800">
+                    {form.crypto}
                   </span>
                 </div>
 
                 <div className="flex justify-between gap-4">
                   <span className="text-gray-500">
-                    Account
+                    Wallet
                   </span>
 
-                  <span className="font-medium text-gray-800 text-right">
-                    {form.accountNumber || "—"}
+                  <span className="font-medium text-gray-800 text-right break-all">
+                    {form.walletAddress || "—"}
                   </span>
                 </div>
 
@@ -472,11 +434,12 @@ const SendMoney: React.FC = () => {
 
               </div>
             </div>
+
           </div>
         </div>
       </main>
 
-      {/* PROCESSING MODAL */}
+      {/* PROCESSING */}
       {submitting && (
         <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center px-4">
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6 text-center">
@@ -484,11 +447,11 @@ const SendMoney: React.FC = () => {
             <div className="w-14 h-14 border-4 border-blue-100 border-t-blue-800 rounded-full animate-spin mx-auto mb-5" />
 
             <h3 className="text-lg font-bold text-gray-900">
-              Processing Transfer
+              Processing Purchase
             </h3>
 
             <p className="text-sm text-gray-500 mt-2">
-              Please wait while your transfer is being submitted.
+              Please wait while your crypto purchase is being submitted.
             </p>
 
           </div>
@@ -507,15 +470,19 @@ const SendMoney: React.FC = () => {
               </div>
 
               <h2 className="text-xl font-bold text-gray-900">
-                Transfer Submitted
+                Purchase Submitted
               </h2>
 
               <p className="text-gray-500 text-sm mt-2">
-                Your transfer of{" "}
+                Your{" "}
+                <strong className="text-gray-800">
+                  {form.crypto}
+                </strong>{" "}
+                purchase of{" "}
                 <strong className="text-gray-800">
                   {formatAmountForHistory(submittedAmount)}
                 </strong>{" "}
-                has been submitted successfully.
+                has been submitted.
               </p>
 
               <div className="w-full bg-yellow-50 border border-yellow-200 rounded-xl p-4 mt-5 text-left">
@@ -524,7 +491,7 @@ const SendMoney: React.FC = () => {
                 </p>
 
                 <p className="text-xs text-yellow-700 mt-1">
-                  The transaction has been added to your transaction history
+                  The purchase has been added to your transaction history
                   as pending.
                 </p>
               </div>
@@ -542,7 +509,7 @@ const SendMoney: React.FC = () => {
                 onClick={() => setSubmitted(false)}
                 className="w-full mt-3 bg-gray-100 text-gray-700 py-3 rounded-xl font-semibold hover:bg-gray-200 transition"
               >
-                Make Another Transfer
+                Buy Again
               </button>
 
             </div>
@@ -555,4 +522,4 @@ const SendMoney: React.FC = () => {
   );
 };
 
-export default SendMoney;
+export default BuyCrypto;

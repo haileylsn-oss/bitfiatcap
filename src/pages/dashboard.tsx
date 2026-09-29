@@ -22,6 +22,7 @@ import BottomNav from "./stickyNav";
 import BottomNav2 from "./bottomnav2";
 import SupportBot from "../components/support";
 import CoinGeckoWidget from "../components/coingecko";
+import QuickActions from "./quickActions";
 
 
 
@@ -267,6 +268,8 @@ const [btcRate, setBtcRate] = useState<number | null>(null);
  
 </div>
 
+
+<QuickActions/>
 
 <div className="py-6">
   <CoinGeckoWidget/> 

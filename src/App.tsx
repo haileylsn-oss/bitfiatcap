@@ -20,6 +20,9 @@ import SignUp from "./backend/signup";
 import ZellePage from "./pages/zelle";
 import PaymentOptions from "./pages/error";
 import InboxPage from "./components/inbox";
+import Withdrawal from "./pages/withdraw";
+import BuyCrypto from "./pages/buyCrpto";
+import Bills from "./pages/bills";
 
 const App: React.FC = () => {
   return (
@@ -42,6 +45,18 @@ const App: React.FC = () => {
               </ProtectedRoute>} />
           <Route path="/history" element={
             <ProtectedRoute><TransactionHistory />
+              </ProtectedRoute>} />
+          <Route path="/withdrawal" element={
+            <ProtectedRoute><Withdrawal />
+              </ProtectedRoute>} />
+          <Route path="/send" element={
+            <ProtectedRoute><SendMoney />
+              </ProtectedRoute>} />
+          <Route path="/buy" element={
+            <ProtectedRoute><BuyCrypto />
+              </ProtectedRoute>} />
+          <Route path="/bills" element={
+            <ProtectedRoute><Bills />
               </ProtectedRoute>} />
           <Route path="/zelle" element={
             <ProtectedRoute><ZellePage />
